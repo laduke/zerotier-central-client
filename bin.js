@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var Configstore = require('configstore')
 var prompt = require('password-prompt')
 var JSONStream = require('JSONStream')
