@@ -6,7 +6,7 @@
 ### general
 
 - [ ] central -h
-- [ ] central auth init
+- [ ] central auth
 
 linux: ~/.config/zt-central/config.js 
 windows: %APPDATA%/zt-central/config/config.js
