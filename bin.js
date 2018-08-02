@@ -72,6 +72,9 @@ function authCommand (args) {
     .then(token => {
       conf.set({ token })
       console.log(`Token saved to ${conf.path}`)
+    }, e => {
+      console.log('exiting')
+      process.exit(1)
     })
 }
 
