@@ -84,6 +84,7 @@ function networkCommand (args) {
   var central = Central({ token })
 
   var listRe = /^l/
+  var getRe = /^g/
 
   if (!subcommand) {
     return console.log('Usage: network list')
@@ -91,6 +92,38 @@ function networkCommand (args) {
 
   if (subcommand.match(listRe)) {
     networkList(args)
+  } else if (subcommand.match(getRe)) {
+    networkGet(args)
+  }
+
+  function networkGet (args) {
+    var { _: [ , , networkId ] } = args
+
+    if (!networkId) {
+      console.error('Need a Network ID to get')
+      console.error('Network IDs are 16 characters 0-9 A-F')
+      console.error('Try: `zt-central network list`')
+    } else {
+      if (args.json) {
+        central.networkGet(networkId)
+          .on('error', console.error)
+          .pipe(process.stdout)
+      } else if (args.verbose) {
+        console.log(headerVerbose())
+        central.networkGet(networkId)
+          .on('error', console.error)
+          .pipe(parseObj())
+          .pipe(networkPrintVerbose())
+          .pipe(process.stdout)
+      } else {
+        console.log(header())
+        central.networkGet(networkId)
+          .on('error', console.error)
+          .pipe(parseObj())
+          .pipe(networkPrint())
+          .pipe(process.stdout)
+      }
+    }
   }
 
   function networkList (args) {
@@ -131,6 +164,14 @@ function networkCommand (args) {
       fmt('<first route>', WID),
       fmt('<auto-assign>', WID)
     ].join('\t')
+  }
+
+  function parseObj () {
+    return through.obj(
+      function (chunk, enc, cb) {
+        cb(null, JSON.parse(chunk.toString()))
+      }
+    )
   }
 
   function networkPrint () {

@@ -19,7 +19,7 @@ windows: %APPDATA%/zt-central/config/config.js
 
 ### networks
 - [x] central network list
-- [ ] central network get _network-id_
+- [x] central network get _network-id_
 
 - [ ] central network add/create
 
