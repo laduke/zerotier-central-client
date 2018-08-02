@@ -70,6 +70,10 @@ function Central (opts) {
   }
 }
 
-Central.prototype.networkList = function (opts) {
+Central.prototype.networkList = function () {
   return this.stream({ path: '/api/network' })
+}
+
+Central.prototype.networkGet = function (networkId) {
+  return this.stream({ path: '/api/network/' + networkId })
 }
