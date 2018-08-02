@@ -36,7 +36,7 @@ var cliOpts = cliclopts([
   {
     name: 'json',
     abbr: 'j',
-    help: 'raw json output',
+    help: 'Raw json output',
     boolean: true
   }
 ])
@@ -49,8 +49,9 @@ if (argv.help || !argv._[0]) {
   console.log('Usage: central <command>')
   cliOpts.print()
 
-  console.log('These are some of the commands commands')
-  console.log('\tauth\tSave an API token')
+  console.log('These are some of the commands commands\n')
+  console.log('\tauth        \tSave an API token')
+  console.log('\tnetwork list\tlist your networks')
   process.exit(0)
 }
 
@@ -75,7 +76,7 @@ function authCommand (args) {
 }
 
 function networkCommand (args) {
-  var { _: [ , subcommand ], token, verbose } = args
+  var { _: [ , subcommand ], token } = args
 
   var central = Central({ token })
 
