@@ -30,7 +30,14 @@ var cliOpts = cliclopts([
   {
     name: 'verbose',
     abbr: 'v',
-    help: 'More output'
+    help: 'More output',
+    boolean: true
+  },
+  {
+    name: 'json',
+    abbr: 'j',
+    help: 'raw json output',
+    boolean: true
   }
 ])
 
@@ -83,12 +90,25 @@ function networkCommand (args) {
   }
 
   function networkList (args) {
-    console.log(verbose ? headerVerbose() : header())
-    central.networkList()
-      .on('error', console.error)
-      .pipe(JSONStream.parse('*'))
-      .pipe(verbose ? networkPrintVerbose() : networkPrint())
-      .pipe(process.stdout)
+    if (args.json) {
+      central.networkList()
+        .on('error', console.error)
+        .pipe(process.stdout)
+    } else if (args.verbose) {
+      console.log(headerVerbose())
+      central.networkList()
+        .on('error', console.error)
+        .pipe(JSONStream.parse('*'))
+        .pipe(networkPrintVerbose())
+        .pipe(process.stdout)
+    } else {
+      console.log(header())
+      central.networkList()
+        .on('error', console.error)
+        .pipe(JSONStream.parse('*'))
+        .pipe(networkPrint())
+        .pipe(process.stdout)
+    }
   }
 
   function header () {
