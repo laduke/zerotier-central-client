@@ -5,19 +5,20 @@
 ## Usage
 ### general
 
-- [ ] central -h
-- [ ] central auth
+- [x] central -h
+- [x] central auth
 
 linux: ~/.config/zt-central/config.js 
 windows: %APPDATA%/zt-central/config/config.js
 
 ### flags
-- [ ] --json 
+- [x] --json 
 - [ ] --host 
-- [ ] --token 
+- [x] --token 
+- [x] --verbose
 
 ### networks
-- [ ] central network list
+- [x] central network list
 - [ ] central network get _network-id_
 
 - [ ] central network add/create
