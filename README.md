@@ -61,5 +61,14 @@ windows: %APPDATA%/zt-central/config/config.js
 ### more options
 - [ ] central hostname save 'my.self-hosted-central.com'
 
-## "The columnes don't line up!"
+## FAQ
+### "The columnes don't line up!"
 - central network list | column -t -s $'\t'
+### "The JSON mode isn't formatted"
+- central network list -j | jq '.'
+- central network list -j | jq '.[0] | { id }'
+
+or
+
+- npm i -g prettyjson 
+- network list -j | prettyjson
