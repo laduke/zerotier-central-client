@@ -60,3 +60,6 @@ windows: %APPDATA%/zt-central/config/config.js
 
 ### more options
 - [ ] central hostname save 'my.self-hosted-central.com'
+
+## "The columnes don't line up!"
+- central network list | column -t -s $'\t'

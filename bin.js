@@ -3,11 +3,15 @@ var prompt = require('password-prompt')
 var JSONStream = require('JSONStream')
 var cliclopts = require('cliclopts')
 var pkg = require('./package.json')
+var trunc = require('cli-truncate')
 var through = require('through2')
 var args = require('minimist')
 var Central = require('./api')
 
 var conf = new Configstore(pkg.name, {}, { globalConfigPath: true })
+
+var MED = 16
+var WID = 32
 
 var cliOpts = cliclopts([
   {
@@ -20,6 +24,11 @@ var cliOpts = cliclopts([
     name: 'token',
     abbr: 't',
     help: 'API token from my.zerotier.com'
+  },
+  {
+    name: 'verbose',
+    abbr: 'v',
+    help: 'More output'
   }
 ])
 
@@ -57,7 +66,7 @@ function authCommand (args) {
 }
 
 function networkCommand (args) {
-  var { _: [ , subcommand ], token } = args
+  var { _: [ , subcommand ], token, verbose } = args
 
   var central = Central({ token })
 
@@ -72,19 +81,69 @@ function networkCommand (args) {
   }
 
   function networkList (args) {
+    console.log(verbose ? headerVerbose() : header())
     central.networkList()
       .on('error', console.error)
       .pipe(JSONStream.parse('*'))
-      .pipe(networkPrint())
+      .pipe(verbose ? networkPrintVerbose() : networkPrint())
       .pipe(process.stdout)
+  }
+
+  function header () {
+    return [
+      fmt('<network id>', MED),
+      fmt('<network name>', MED),
+      fmt('<first route>', WID)
+    ].join('\t')
+  }
+
+  function headerVerbose () {
+    return [
+      fmt('<network id>', MED),
+      fmt('<name>', MED),
+      fmt('<description>', MED),
+      fmt('<first route>', WID),
+      fmt('<auto-assign>', WID)
+    ].join('\t')
   }
 
   function networkPrint () {
     return through.obj(
       function (chunk, enc, cb) {
-        var result = [ chunk.id, chunk.config.name ].join('\t')
+        var route = chunk.config.routes[0] ? chunk.config.routes[0].target : ''
+        var result = [
+          fmt(chunk.id, MED),
+          fmt(chunk.config.name, MED),
+          fmt(route, WID)
+        ].join('\t')
         cb(null, result + '\n')
       }
     )
   }
+
+  function networkPrintVerbose () {
+    return through.obj(
+      function (chunk, enc, cb) {
+        var route = chunk.config.routes[0] ? chunk.config.routes[0].target : ''
+
+        var pool = chunk.config.ipAssignmentPools[0]
+          ? chunk.config.ipAssignmentPools[0].ipRangeStart : ''
+        var end = chunk.config.ipAssignmentPools[0]
+          ? chunk.config.ipAssignmentPools[0].ipRangeEnd : ''
+
+        var result = [
+          fmt(chunk.id, MED),
+          fmt(chunk.config.name, MED),
+          fmt(chunk.description, MED),
+          fmt(route, WID),
+          fmt(pool + ' - ' + end, WID)
+        ].join('\t')
+        cb(null, result + '\n')
+      }
+    )
+  }
+}
+
+function fmt (str, width) {
+  return trunc(str || '-', width, { position: 'middle' })
 }
