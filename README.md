@@ -21,7 +21,7 @@ windows: %APPDATA%/zt-central/config/config.js
 - [x] central network list
 - [x] central network get _network-id_
 
-- [ ] central network add/create
+- [x] central network add/create
 
 - [ ] central network set name _network-id_ 'mantasy island'
 - [ ] central network set description _network-id_ ''

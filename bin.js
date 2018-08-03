@@ -3,6 +3,7 @@
 var Configstore = require('configstore')
 var prompt = require('password-prompt')
 var JSONStream = require('JSONStream')
+var concat = require('concat-stream')
 var cliclopts = require('cliclopts')
 var pkg = require('./package.json')
 var trunc = require('cli-truncate')
@@ -52,6 +53,8 @@ if (argv.help || !argv._[0]) {
   console.log('These are some of the commands commands\n')
   console.log('\tauth        \tSave an API token')
   console.log('\tnetwork list\tlist your networks')
+  console.log('\tnetwork get <id>\tget one network')
+  console.log('\tnetwork add\tcreate a network')
   process.exit(0)
 }
 
@@ -85,6 +88,7 @@ function networkCommand (args) {
 
   var listRe = /^l/
   var getRe = /^g/
+  var addRe = /^a/
 
   if (!subcommand) {
     return console.log('Usage: network list')
@@ -94,6 +98,26 @@ function networkCommand (args) {
     networkList(args)
   } else if (subcommand.match(getRe)) {
     networkGet(args)
+  } else if (subcommand.match(addRe)) {
+    networkAdd(args)
+  }
+
+  function networkAdd (args) {
+    if (args.json) {
+      central.networkCreate()
+        .on('error', console.error)
+        .pipe(process.stdout)
+    } else if (args.verbose) {
+      console.log(headerVerbose())
+      central.networkCreate()
+        .on('error', console.error)
+        .pipe(concat(gotBody(networkPrintVerbose)))
+    } else {
+      console.log(header())
+      central.networkCreate()
+        .on('error', console.error)
+        .pipe(concat(gotBody(networkPrint)))
+    }
   }
 
   function networkGet (args) {
@@ -110,18 +134,16 @@ function networkCommand (args) {
           .pipe(process.stdout)
       } else if (args.verbose) {
         console.log(headerVerbose())
+
         central.networkGet(networkId)
           .on('error', console.error)
-          .pipe(parseObj())
-          .pipe(networkPrintVerbose())
-          .pipe(process.stdout)
+          .pipe(concat(gotBody(networkPrintVerbose)))
       } else {
         console.log(header())
+
         central.networkGet(networkId)
           .on('error', console.error)
-          .pipe(parseObj())
-          .pipe(networkPrint())
-          .pipe(process.stdout)
+          .pipe(concat(gotBody(networkPrint)))
       }
     }
   }
@@ -136,14 +158,14 @@ function networkCommand (args) {
       central.networkList()
         .on('error', console.error)
         .pipe(JSONStream.parse('*'))
-        .pipe(networkPrintVerbose())
+        .pipe(formatObj(networkPrintVerbose))
         .pipe(process.stdout)
     } else {
       console.log(header())
       central.networkList()
         .on('error', console.error)
         .pipe(JSONStream.parse('*'))
-        .pipe(networkPrint())
+        .pipe(formatObj(networkPrint))
         .pipe(process.stdout)
     }
   }
@@ -166,48 +188,44 @@ function networkCommand (args) {
     ].join('\t')
   }
 
-  function parseObj () {
-    return through.obj(
-      function (chunk, enc, cb) {
-        cb(null, JSON.parse(chunk.toString()))
-      }
-    )
+  function networkPrint (chunk) {
+    var route = chunk.config.routes[0] ? chunk.config.routes[0].target : ''
+    return [
+      fmt(chunk.id, MED),
+      fmt(chunk.config.name, MED),
+      fmt(route, WID)
+    ].join('\t') + '\n'
   }
 
-  function networkPrint () {
-    return through.obj(
-      function (chunk, enc, cb) {
-        var route = chunk.config.routes[0] ? chunk.config.routes[0].target : ''
-        var result = [
-          fmt(chunk.id, MED),
-          fmt(chunk.config.name, MED),
-          fmt(route, WID)
-        ].join('\t')
-        cb(null, result + '\n')
-      }
-    )
+  function networkPrintVerbose (chunk) {
+    var route = chunk.config.routes[0] ? chunk.config.routes[0].target : ''
+
+    var pool = chunk.config.ipAssignmentPools[0]
+      ? chunk.config.ipAssignmentPools[0].ipRangeStart : ''
+    var end = chunk.config.ipAssignmentPools[0]
+      ? chunk.config.ipAssignmentPools[0].ipRangeEnd : ''
+
+    return [
+      fmt(chunk.id, MED),
+      fmt(chunk.config.name, MED),
+      fmt(chunk.description, MED),
+      fmt(route, WID),
+      fmt(pool + ' - ' + end, WID)
+    ].join('\t') + '\n'
   }
+}
 
-  function networkPrintVerbose () {
-    return through.obj(
-      function (chunk, enc, cb) {
-        var route = chunk.config.routes[0] ? chunk.config.routes[0].target : ''
+function formatObj (formatter) {
+  return through.obj(
+    function (chunk, enc, cb) {
+      cb(null, formatter(chunk))
+    }
+  )
+}
 
-        var pool = chunk.config.ipAssignmentPools[0]
-          ? chunk.config.ipAssignmentPools[0].ipRangeStart : ''
-        var end = chunk.config.ipAssignmentPools[0]
-          ? chunk.config.ipAssignmentPools[0].ipRangeEnd : ''
-
-        var result = [
-          fmt(chunk.id, MED),
-          fmt(chunk.config.name, MED),
-          fmt(chunk.description, MED),
-          fmt(route, WID),
-          fmt(pool + ' - ' + end, WID)
-        ].join('\t')
-        cb(null, result + '\n')
-      }
-    )
+function gotBody (fmt) {
+  return function (body) {
+    console.log(fmt(JSON.parse(body.toString())))
   }
 }
 
