@@ -77,3 +77,7 @@ Central.prototype.networkList = function () {
 Central.prototype.networkGet = function (networkId) {
   return this.stream({ path: '/api/network/' + networkId })
 }
+
+Central.prototype.networkCreate = function () {
+  return this.stream({ path: '/api/network/?easy=1', method: 'POST' })
+}
