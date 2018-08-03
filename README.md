@@ -19,6 +19,7 @@ windows: %APPDATA%/zt-central/config/config.js
 
 ### networks
 - [x] central network list
+- [ ] central network list --user <user-id> (for admins, needs backend first)
 - [x] central network get _network-id_
 
 - [x] central network add/create
@@ -43,7 +44,7 @@ windows: %APPDATA%/zt-central/config/config.js
 - [ ] central network set rules _network-id_ TODO (would be nice if it took stdin / a file)
 
 ### members
-- [ ] central member list _network-id_
+- [x] central member list _network-id_
 - [ ] central member get _network-id_ _member-id_
 
 - [ ] central member name _name_ _network-id_ _member-id_

@@ -52,21 +52,102 @@ if (argv.help || !argv._[0]) {
 
   console.log('These are some of the commands commands\n')
   console.log('\tauth        \tSave an API token')
-  console.log('\tnetwork list\tlist your networks')
-  console.log('\tnetwork get <id>\tget one network')
-  console.log('\tnetwork add\tcreate a network')
+  console.log()
+  console.log('\tnetwork list\t\tlist your networks')
+  console.log('\tnetwork get <id>\tget a specific network')
+  console.log('\tnetwork add\t\tcreate a network')
+  console.log()
+  console.log('\tmember list <network_id>')
   process.exit(0)
 }
 
 var { _: [ command ] } = argv
 
-var authRe = /^au/ // auth
-var networkRe = /^n/ // network
+var authRe = /^au/ // 'auth'
+var networkRe = /^n/ // 'network'
+var memberRe = /^m/ // 'member'
+
+var listRe = /^l/ // 'list'
 
 if (command.match(authRe)) {
   authCommand(argv)
 } else if (command.match(networkRe)) {
   networkCommand(argv)
+} else if (command.match(memberRe)) {
+  memberCommand(argv)
+}
+
+function memberCommand (args) {
+  var { _: [ , subcommand ], token } = args
+  var central = Central({ token })
+
+  if (!subcommand) {
+    return console.log('Usage: member list')
+  } else if (subcommand.match(listRe)) {
+    memberList(args)
+  }
+
+  function memberList (args) {
+    var { _: [ , , networkId ] } = args
+    if (args.json) {
+      central.memberList(networkId)
+        .on('error', console.error)
+        .pipe(process.stdout)
+    } else if (args.verbose) {
+      console.log(headerVerbose())
+      central.memberList(networkId)
+        .on('error', console.error)
+        .pipe(JSONStream.parse('*'))
+        .pipe(formatObj(memberPrintVerbose))
+        .pipe(process.stdout)
+    } else {
+      console.log(header())
+      central.memberList(networkId)
+        .on('error', console.error)
+        .pipe(JSONStream.parse('*'))
+        .pipe(formatObj(memberPrint))
+        .pipe(process.stdout)
+    }
+  }
+
+  function memberPrint (chunk) {
+    return [
+      fmt(chunk.nodeId, MED),
+      fmt(chunk.name, WID),
+      fmt(chunk.config.authorized.toString(), MED)
+    ].join('\t') + '\n'
+  }
+
+  function header () {
+    return [
+      fmt('<node id>', MED),
+      fmt('<name>', MED),
+      fmt('<authorized>', WID)
+    ].join('\t')
+  }
+
+  function memberPrintVerbose (chunk) {
+    var ip1 = chunk.config.ipAssignments[0]
+
+    return [
+      fmt(chunk.nodeId, MED),
+      fmt(chunk.name, WID),
+      fmt(chunk.config.authorized.toString(), MED),
+      fmt(chunk.physicalAddress, MED),
+      fmt(ip1, MED)
+
+    ].join('\t') + '\n'
+  }
+
+  function headerVerbose () {
+    return [
+      fmt('<node id>', MED),
+      fmt('<name>', MED),
+      fmt('<authorized>', WID),
+      fmt('<wan ip>', WID),
+      fmt('<zt ipv4>', WID)
+    ].join('\t')
+  }
 }
 
 function authCommand (args) {
@@ -86,7 +167,6 @@ function networkCommand (args) {
 
   var central = Central({ token })
 
-  var listRe = /^l/
   var getRe = /^g/
   var addRe = /^a/
 
