@@ -13,8 +13,11 @@ var Central = require('./api')
 
 var conf = new Configstore(pkg.name, {}, { globalConfigPath: true })
 
+var SMOL = 6
+var ID = 10
 var MED = 16
 var WID = 32
+var V6 = 39
 
 var cliOpts = cliclopts([
   {
@@ -112,17 +115,17 @@ function memberCommand (args) {
 
   function memberPrint (chunk) {
     return [
-      fmt(chunk.nodeId, MED),
-      fmt(chunk.name, WID),
-      fmt(chunk.config.authorized.toString(), MED)
+      fmt(chunk.nodeId, ID),
+      fmt(chunk.config.authorized.toString(), SMOL),
+      fmt(chunk.name, WID)
     ].join('\t') + '\n'
   }
 
   function header () {
     return [
-      fmt('<node id>', MED),
-      fmt('<name>', MED),
-      fmt('<authorized>', WID)
+      fmt('<node_id>', ID),
+      fmt('<auth>', SMOL),
+      fmt('<name>', WID)
     ].join('\t')
   }
 
@@ -130,22 +133,22 @@ function memberCommand (args) {
     var ip1 = chunk.config.ipAssignments[0]
 
     return [
-      fmt(chunk.nodeId, MED),
-      fmt(chunk.name, WID),
-      fmt(chunk.config.authorized.toString(), MED),
-      fmt(chunk.physicalAddress, MED),
-      fmt(ip1, MED)
+      fmt(chunk.nodeId, ID),
+      fmt(chunk.config.authorized.toString(), SMOL),
+      fmt(chunk.physicalAddress, V6),
+      fmt(ip1, MED),
+      fmt(chunk.name, WID)
 
     ].join('\t') + '\n'
   }
 
   function headerVerbose () {
     return [
-      fmt('<node id>', MED),
-      fmt('<name>', MED),
-      fmt('<authorized>', WID),
-      fmt('<wan ip>', WID),
-      fmt('<zt ipv4>', WID)
+      fmt('<node_id>', ID),
+      fmt('<auth>', SMOL),
+      fmt('<wan_ip>', V6),
+      fmt('<zt_ipv4>', MED),
+      fmt('<name>', MED)
     ].join('\t')
   }
 }
@@ -252,19 +255,9 @@ function networkCommand (args) {
 
   function header () {
     return [
-      fmt('<network id>', MED),
-      fmt('<network name>', MED),
-      fmt('<first route>', WID)
-    ].join('\t')
-  }
-
-  function headerVerbose () {
-    return [
-      fmt('<network id>', MED),
-      fmt('<name>', MED),
-      fmt('<description>', MED),
-      fmt('<first route>', WID),
-      fmt('<auto-assign>', WID)
+      fmt('<network_id>', MED),
+      fmt('<first_route>', MED),
+      fmt('<network_name>', WID)
     ].join('\t')
   }
 
@@ -272,9 +265,19 @@ function networkCommand (args) {
     var route = chunk.config.routes[0] ? chunk.config.routes[0].target : ''
     return [
       fmt(chunk.id, MED),
-      fmt(chunk.config.name, MED),
-      fmt(route, WID)
+      fmt(route, MED),
+      fmt(quote(chunk.config.name), WID)
     ].join('\t') + '\n'
+  }
+
+  function headerVerbose () {
+    return [
+      fmt('<network_id>', MED),
+      fmt('<first_route>', MED),
+      fmt('<auto-assign>', WID),
+      fmt('<name>', WID),
+      fmt('<description>', WID)
+    ].join('\t')
   }
 
   function networkPrintVerbose (chunk) {
@@ -287,10 +290,10 @@ function networkCommand (args) {
 
     return [
       fmt(chunk.id, MED),
-      fmt(chunk.config.name, MED),
-      fmt(chunk.description, MED),
-      fmt(route, WID),
-      fmt(pool + ' - ' + end, WID)
+      fmt(route, MED),
+      fmt(pool + ' - ' + end, WID),
+      fmt(quote(chunk.config.name), WID),
+      fmt(quote(chunk.description), WID)
     ].join('\t') + '\n'
   }
 }
@@ -310,5 +313,9 @@ function gotBody (fmt) {
 }
 
 function fmt (str, width) {
-  return trunc(str || '-', width, { position: 'middle' })
+  return trunc(str || '-', width, { position: 'middle' }).padEnd(width)
+}
+
+function quote (str) {
+  return str ? `"${str}"` : ''
 }
