@@ -53,14 +53,14 @@ if (argv.help || !argv._[0]) {
   console.log('Usage: central <command>')
   cliOpts.print()
 
-  console.log('These are some of the commands commands\n')
+  console.log('These are some of the commands \n')
   console.log('\tauth        \tSave an API token')
   console.log()
   console.log('\tnetwork list\t\tlist your networks')
   console.log('\tnetwork get <id>\tget a specific network')
   console.log('\tnetwork add\t\tcreate a network')
   console.log()
-  console.log('\tmember list <network_id>')
+  console.log('\tmember list\t\t<network_id>')
   process.exit(0)
 }
 
