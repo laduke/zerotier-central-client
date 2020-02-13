@@ -1,13 +1,13 @@
 {
   "name": "@laduke/zerotier-central-client",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "repository": {
     "type": "git",
-    "url": "https://github.com/laduke/zerotier-central-client.git"
+    "url": "git+https://github.com/laduke/zerotier-central-client.git"
   },
   "main": "index.js",
   "scripts": {
-    "test": "tape test.js"
+    "test": "tape test.js | faucet"
   },
   "eslintConfig": {
     "extends": "standard"
@@ -23,5 +23,15 @@
     "standard": "^14.3.1",
     "tape": "^5.0.0-next.4",
     "testdouble": "^3.12.5"
-  }
+  },
+  "description": "(my.zerotier.com)",
+  "bugs": {
+    "url": "https://github.com/laduke/zerotier-central-client/issues"
+  },
+  "homepage": "https://github.com/laduke/zerotier-central-client#readme",
+  "keywords": [
+    "zerotier", "api client"
+  ],
+  "author": "Travis LaDuke",
+  "license": "MIT"
 }
