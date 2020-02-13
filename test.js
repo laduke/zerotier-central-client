@@ -3,6 +3,8 @@ const td = require('testdouble')
 
 const base = 'http://localhost/api/'
 
+const Central = require('./index.js')
+
 test('the request maker thing', u => {
   td.reset()
 
@@ -10,7 +12,7 @@ test('the request maker thing', u => {
     const fetchMock = require('fetch-mock')
     fetchMock.get(`${base}status`, {})
 
-    const central = require('./index.js')({ base })
+    const central = Central({ base })
 
     const res = await central.getStatus()
     t.deepEqual({}, res)
@@ -22,7 +24,7 @@ test('the request maker thing', u => {
     const fetchMock = require('fetch-mock')
     fetchMock.get(`${base}randomToken`, {})
 
-    const central = require('./index.js')({ base })
+    const central = Central({ base })
 
     const res = await central.getRandomToken()
     t.deepEqual({}, res)
@@ -34,7 +36,7 @@ test('the request maker thing', u => {
     const fetchMock = require('fetch-mock')
     fetchMock.get(`${base}network`, {})
 
-    const central = require('./index.js')({ base })
+    const central = Central({ base })
 
     const res = await central.getNetworks()
     t.deepEqual({}, res)
@@ -48,7 +50,7 @@ test('the request maker thing', u => {
     const fetchMock = require('fetch-mock')
     fetchMock.get(`${base}network/${id}`, {})
 
-    const central = require('./index.js')({ base })
+    const central = Central({ base })
 
     const res = await central.getNetwork(id)
     t.deepEqual({}, res)
@@ -62,7 +64,7 @@ test('the request maker thing', u => {
     const fetchMock = require('fetch-mock')
     fetchMock.get(`${base}network/${id}/member`, {})
 
-    const central = require('./index.js')({ base })
+    const central = Central({ base })
 
     const res = await central.getMembers(id)
     t.deepEqual({}, res)
@@ -77,7 +79,7 @@ test('the request maker thing', u => {
     const fetchMock = require('fetch-mock')
     fetchMock.get(`${base}network/${nwid}/member/${memb}`, {})
 
-    const central = require('./index.js')({ base })
+    const central = Central({ base })
 
     const res = await central.getMember(nwid, memb)
     t.deepEqual({}, res)
@@ -92,7 +94,7 @@ test('the request maker thing', u => {
     const fetchMock = require('fetch-mock')
     fetchMock.post({ url: `${base}network/${nwid}`, body: config }, {})
 
-    const central = require('./index.js')({ base })
+    const central = Central({ base })
 
     const res = await central.setNetwork(nwid, config)
     t.deepEqual({}, res)
@@ -106,7 +108,7 @@ test('the request maker thing', u => {
     const fetchMock = require('fetch-mock')
     fetchMock.post({ url: `${base}network`, body: config }, {})
 
-    const central = require('./index.js')({ base })
+    const central = Central({ base })
 
     const res = await central.createNetwork(config)
     t.deepEqual({}, res)
@@ -125,7 +127,7 @@ test('the request maker thing', u => {
       {}
     )
 
-    const central = require('./index.js')({ base })
+    const central = Central({ base })
 
     const res = await central.setMember(nwid, memb, config)
     t.deepEqual({}, res)
@@ -140,7 +142,7 @@ test('errors', async tt => {
     const fetchMock = require('fetch-mock')
     fetchMock.mock('*', { throws: new Error('NetworkError') })
 
-    const central = require('./index.js')({ base })
+    const central = Central({ base })
 
     await central
       .getStatus()
@@ -162,7 +164,7 @@ test('errors', async tt => {
       body: { type: 'internal', message: 'Unauthentic' }
     })
 
-    const central = require('./index.js')({ base })
+    const central = Central({ base })
 
     await central
       .getStatus()
@@ -184,7 +186,7 @@ test('errors', async tt => {
       body: { type: 'internal', message: 'Unauthorized' }
     })
 
-    const central = require('./index.js')({ base })
+    const central = Central({ base })
 
     await central
       .getStatus()
@@ -206,7 +208,7 @@ test('errors', async tt => {
       body: { type: 'internal', message: 'not found' }
     })
 
-    const central = require('./index.js')({ base })
+    const central = Central({ base })
 
     await central
       .getStatus()
@@ -225,7 +227,7 @@ test('errors', async tt => {
     const fetchMock = require('fetch-mock')
     fetchMock.mock('*', { status: 200, body: '}}{{{{--{}}' })
 
-    const central = require('./index.js')({ base })
+    const central = Central({ base })
 
     await central
       .getStatus()
@@ -247,11 +249,10 @@ test('errors', async tt => {
 test('really calls central', async t => {
   td.reset()
   if (process.env.CENTRAL_TOKEN) {
-    const Central = require('./index.js')
     const central = Central({ token: process.env.CENTRAL_TOKEN })
 
     const status = await central.getStatus()
-    t.ok(status)
+    t.ok(status.version)
 
     t.end()
   } else {
