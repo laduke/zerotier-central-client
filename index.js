@@ -112,14 +112,30 @@ function factory (opts = {}) {
   const getMember = (networkId, memberId) =>
     _get(`network/${networkId}/member/${memberId}`)
 
+  /**
+   * Post the config of a specific Network
+   * @param {string} networkId - Network ID, a 16 hex digits
+   * @param {string} data - config object
+   **/
   const setNetwork = (networkId, data) =>
     _set(`network/${networkId}`, data)
 
+  /**
+   * Create a new network
+   * @param {string} networkId - Network ID, a 16 hex digits
+   * @param {string} data - config object
+   **/
   const createNetwork = (data) =>
     _set('network', data)
 
-  const setMember = (networkId, memberId, data) =>
-    _set(`network/${networkId}/member/${memberId}`, data)
+  /**
+   * Post the config of a specific Network Member
+   * @param {string} networkId - Network ID, a 16 hex digits
+   * @param {string} nodeId - Node ID, a 10 hex digits
+   * @param {string} data - config object
+   **/
+  const setMember = (networkId, nodeId, data) =>
+    _set(`network/${networkId}/member/${nodeId}`, data)
 
   return {
     getStatus,
