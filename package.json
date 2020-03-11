@@ -7,22 +7,19 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "tape test.js | faucet"
+    "test": "tape test.js"
   },
   "eslintConfig": {
     "extends": "standard"
   },
-  "dependencies": {
-    "cross-fetch": "^3.0.4",
-    "error": "^10.0.1"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "axios": "^0.19.2",
     "eslint-config-standard": "^14.1.0",
     "faucet": "*",
-    "fetch-mock": "^9.0.0-beta.2",
+    "node-fetch": "^2.6.0",
     "standard": "^14.3.1",
-    "tape": "^5.0.0-next.4",
-    "testdouble": "^3.12.5"
+    "tape": "^5.0.0-next.4"
   },
   "description": "(my.zerotier.com)",
   "bugs": {
@@ -30,7 +27,8 @@
   },
   "homepage": "https://github.com/laduke/zerotier-central-client#readme",
   "keywords": [
-    "zerotier", "api client"
+    "zerotier",
+    "api client"
   ],
   "author": "Travis LaDuke",
   "license": "MIT"

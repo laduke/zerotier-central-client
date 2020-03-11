@@ -1,258 +1,153 @@
 const test = require('tape')
-const td = require('testdouble')
-
-const base = 'http://localhost/api/'
 
 const Central = require('./index.js')
 
-test('the request maker thing', u => {
-  td.reset()
+test('token is in header', t => {
+  const central = Central({ token: '1234' })
+  const res = central.networkList()
 
-  test('Get Status', async t => {
-    const fetchMock = require('fetch-mock')
-    fetchMock.get(`${base}status`, {})
+  t.equal('bearer 1234', res.headers.authorization)
 
-    const central = Central({ base })
-
-    const res = await central.getStatus()
-    t.deepEqual({}, res)
-
-    fetchMock.restore()
-  })
-
-  test('Get RandomToken', async t => {
-    const fetchMock = require('fetch-mock')
-    fetchMock.get(`${base}randomToken`, {})
-
-    const central = Central({ base })
-
-    const res = await central.getRandomToken()
-    t.deepEqual({}, res)
-
-    fetchMock.restore()
-  })
-
-  test('Get Networks', async t => {
-    const fetchMock = require('fetch-mock')
-    fetchMock.get(`${base}network`, {})
-
-    const central = Central({ base })
-
-    const res = await central.getNetworks()
-    t.deepEqual({}, res)
-
-    fetchMock.restore()
-  })
-
-  test('Get Network', async t => {
-    const id = '1122334455aabbcc'
-
-    const fetchMock = require('fetch-mock')
-    fetchMock.get(`${base}network/${id}`, {})
-
-    const central = Central({ base })
-
-    const res = await central.getNetwork(id)
-    t.deepEqual({}, res)
-
-    fetchMock.restore()
-  })
-
-  test('Get Members', async t => {
-    const id = '1122334455aabbcc'
-
-    const fetchMock = require('fetch-mock')
-    fetchMock.get(`${base}network/${id}/member`, {})
-
-    const central = Central({ base })
-
-    const res = await central.getMembers(id)
-    t.deepEqual({}, res)
-
-    fetchMock.restore()
-  })
-
-  test('Get Member', async t => {
-    const nwid = '1122334455aabbcc'
-    const memb = 'ffeeddcc'
-
-    const fetchMock = require('fetch-mock')
-    fetchMock.get(`${base}network/${nwid}/member/${memb}`, {})
-
-    const central = Central({ base })
-
-    const res = await central.getMember(nwid, memb)
-    t.deepEqual({}, res)
-
-    fetchMock.restore()
-  })
-
-  test('Set Network', async t => {
-    const nwid = '1122334455aabbcc'
-    const config = { beep: 'boop' }
-
-    const fetchMock = require('fetch-mock')
-    fetchMock.post({ url: `${base}network/${nwid}`, body: config }, {})
-
-    const central = Central({ base })
-
-    const res = await central.setNetwork(nwid, config)
-    t.deepEqual({}, res)
-
-    fetchMock.restore()
-  })
-
-  test('Create Network', async t => {
-    const config = { private: true }
-
-    const fetchMock = require('fetch-mock')
-    fetchMock.post({ url: `${base}network`, body: config }, {})
-
-    const central = Central({ base })
-
-    const res = await central.createNetwork(config)
-    t.deepEqual({}, res)
-
-    fetchMock.restore()
-  })
-
-  test('Set Member', async t => {
-    const nwid = '1122334455aabbcc'
-    const memb = 'ffeeddcc'
-    const config = { config: { authorized: true } }
-
-    const fetchMock = require('fetch-mock')
-    fetchMock.post(
-      { url: `${base}network/${nwid}/member/${memb}`, body: config },
-      {}
-    )
-
-    const central = Central({ base })
-
-    const res = await central.setMember(nwid, memb, config)
-    t.deepEqual({}, res)
-
-    fetchMock.restore()
-  })
-  u.end()
+  t.end()
 })
 
-test('errors', async tt => {
-  test('network error', async t => {
-    const fetchMock = require('fetch-mock')
-    fetchMock.mock('*', { throws: new Error('NetworkError') })
+test('no token is in header', t => {
+  const central = new Central()
+  const res = central.networkList()
 
-    const central = Central({ base })
+  t.notOk(res.headers.authorization)
 
-    await central
-      .getStatus()
-      .then(x => {
-        t.error('should have been a network error')
-      })
-      .catch(e => {
-        t.ok(e.message)
-        t.end()
-      })
-
-    fetchMock.restore()
-  })
-
-  test('authentication error', async t => {
-    const fetchMock = require('fetch-mock')
-    fetchMock.mock('*', {
-      status: 401,
-      body: { type: 'internal', message: 'Unauthentic' }
-    })
-
-    const central = Central({ base })
-
-    await central
-      .getStatus()
-      .then(() => {
-        t.error('should have been an Auth Error')
-      })
-      .catch(e => {
-        t.equal(e.type, 'authentication.error')
-        t.end()
-      })
-
-    fetchMock.restore()
-  })
-
-  test('authorization error', async t => {
-    const fetchMock = require('fetch-mock')
-    fetchMock.mock('*', {
-      status: 403,
-      body: { type: 'internal', message: 'Unauthorized' }
-    })
-
-    const central = Central({ base })
-
-    await central
-      .getStatus()
-      .then(() => {
-        t.error('should not be here')
-      })
-      .catch(e => {
-        t.equal(e.type, 'authorization.error')
-        t.end()
-      })
-
-    fetchMock.restore()
-  })
-
-  test('not found error', async t => {
-    const fetchMock = require('fetch-mock')
-    fetchMock.mock('*', {
-      status: 404,
-      body: { type: 'internal', message: 'not found' }
-    })
-
-    const central = Central({ base })
-
-    await central
-      .getStatus()
-      .then(() => {
-        t.error('should not be here')
-      })
-      .catch(e => {
-        t.equal(e.type, 'not.found.error')
-        t.end()
-      })
-
-    fetchMock.restore()
-  })
-
-  test('json error', async t => {
-    const fetchMock = require('fetch-mock')
-    fetchMock.mock('*', { status: 200, body: '}}{{{{--{}}' })
-
-    const central = Central({ base })
-
-    await central
-      .getStatus()
-      .then(x => {
-        t.error('should have been a JSON error')
-        console.log(x)
-      })
-      .catch(e => {
-        t.equal(e.type, 'json.error')
-        t.end()
-      })
-
-    fetchMock.restore()
-  })
-
-  tt.end()
+  t.end()
 })
 
-test('really calls central', async t => {
-  td.reset()
+test('invalid base url', t => {
+  t.throws(() => new Central({ base: 1234 }))
+
+  t.end()
+})
+
+test('network - list', t => {
+  const central = new Central()
+  const { url, ...opts } = central.networkList()
+
+  t.equal('https://my.zerotier.com/api/network', url)
+  t.equal('get', opts.method)
+
+  t.end()
+})
+
+test('network - get', t => {
+  const central = new Central({ token: '1234' })
+  const { url, ...opts } = central.networkGet('6b3e0de52313eae8')
+
+  t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8', url)
+  t.equal('get', opts.method)
+
+  t.end()
+})
+
+test('network - get invalid network ID', t => {
+  const central = new Central({ token: '1234' })
+
+  t.throws(() => central.networkGet(1))
+  t.throws(() => central.networkGet('zzzzzzzzzzzzzzzz'))
+  t.throws(() => central.networkGet())
+
+  t.end()
+})
+
+test('network - create', t => {
+  const central = new Central({ token: '1234' })
+  const { url, ...opts } = central.networkCreate()
+
+  t.equal('https://my.zerotier.com/api/network', url)
+  t.equal('post', opts.method)
+
+  t.end()
+})
+
+test('network - update', t => {
+  const central = Central({ token: '1234' })
+  const { url, ...opts } = central.networkUpdate('6b3e0de52313eae8')
+
+  t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8', url)
+  t.equal('post', opts.method)
+
+  t.end()
+})
+
+test('network - delete', t => {
+  const central = Central()
+  const { url, ...opts } = central.networkDelete('6b3e0de52313eae8')
+
+  t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8', url)
+  t.equal('delete', opts.method)
+
+  t.end()
+})
+
+test('status - get', t => {
+  const central = Central()
+  const { url, ...opts } = central.statusGet()
+
+  t.equal('https://my.zerotier.com/api/status', url)
+  t.equal('get', opts.method)
+
+  t.end()
+})
+
+test('member - list', t => {
+  const central = Central()
+  const { url, ...opts } = central.memberList('6b3e0de52313eae8')
+
+  t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8/member', url)
+  t.equal('get', opts.method)
+
+  t.end()
+})
+
+test('member - get', t => {
+  const central = Central()
+  const { url, ...opts } = central.memberGet('6b3e0de52313eae8', '1122334455')
+
+  t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8/member/1122334455', url)
+  t.equal('get', opts.method)
+
+  t.end()
+})
+
+test('member - get throws', t => {
+  const central = Central()
+
+  t.throws(() => central.memberGet('6b3e0de52313eae8', 'zzzz'))
+  t.throws(() => central.memberGet('qqq', '1122334455'))
+  t.throws(() => central.memberGet())
+
+  t.end()
+})
+
+test('member - update', t => {
+  const central = Central()
+  const { url, ...opts } = central.memberUpdate('6b3e0de52313eae8', '1122334455')
+
+  t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8/member/1122334455', url)
+  t.equal('post', opts.method)
+
+  t.end()
+})
+
+test.only('axios', async t => {
   if (process.env.CENTRAL_TOKEN) {
-    const central = Central({ token: process.env.CENTRAL_TOKEN })
+    const central = Central({ token: process.env.API_TOKEN })
 
-    const status = await central.getStatus()
-    t.ok(status.version)
+    const axios = require('axios').default
+    const result = await axios(central.statusGet())
+    t.ok(result.data.id)
+
+    const fetch = require('node-fetch')
+    const { url, ...opts } = central.statusGet()
+    const result2 = await fetch(url, opts).then(res => res.json())
+    t.ok(result2.id)
 
     t.end()
   } else {

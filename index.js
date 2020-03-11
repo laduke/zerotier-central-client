@@ -1,202 +1,127 @@
-const fetch = require('./fetch.js')
-const { SError } = require('error')
+const assert = require('assert')
 
-class AuthenticationError extends SError {}
-class AuthorizationError extends SError {}
-class NotFoundError extends SError {}
-class JsonError extends SError {}
-class HttpError extends SError {}
-
-const API_BASE = 'https://my.zerotier.com/api/'
-
-module.exports = factory
-
-function factory (opts = {}) {
-  const _fetchOpts = {
-    headers: {
-      'content-type': 'application/json',
-      ...(opts.token ? { authorization: `bearer ${opts.token}` } : null)
-    },
-    credentials: 'same-origin'
+function Central (opts = {}) {
+  if (opts.token) {
+    assert(
+      typeof opts.token === 'string' && opts.token.length > 0,
+      'API Token should be a string, if defined. Got: ' + opts.token
+    )
   }
 
-  const _base =
-    opts.base ||
-    (typeof window !== 'undefined' && window.location.origin + '/api/') ||
-    API_BASE
-
-  function _get (path) {
-    const { resource, init } = setupRequest(path, _base, {
-      ..._fetchOpts,
-      method: 'GET'
-    })
-
-    return _fetch(resource, init)
+  const token = opts.token
+  const base = opts.base || 'https://my.zerotier.com/api'
+  const headers = {
+    'content-type': 'application/json',
+    ...(token ? { authorization: `bearer ${token}` } : null)
   }
 
-  function _set (path, data) {
-    return new Promise((resolve, reject) => {
-      let body
-      try {
-        body = JSON.stringify(data)
-      } catch (e) {
-        return reject(JsonError.create(e))
-      }
-
-      const { resource, init } = setupRequest(path, _base, {
-        ..._fetchOpts,
-        method: 'POST',
-        body
-      })
-
-      _fetch(resource, init)
-        .then(resolve)
-    })
-  }
-
-  /* Do the fetch get request, tidy some errors
-   * @returns {Promise}
-   */
-  function _fetch (resource, init) {
-    return fetch(resource, init)
-      .then(
-        res => {
-          if (!res.ok) {
-            throw errFromStatusCode(res)
-          } else {
-            return res.json()
-              .catch(e => {
-                throw jsonErr(resource)
-              })
-          }
-        }
-      )
-      .catch(e => {
-        throw e
-      })
-  }
-
-  /**
-   * Get some info about the User and Central
-   **/
-  const getStatus = () => _get('status')
-
-  /**
-   * Generate a new random API token on the server
-   * Tokens are returned in the status object: getStatus()
-   **/
-  const getRandomToken = () => _get('randomToken')
-
-  /**
-   * Get All Networks
-   **/
-  const getNetworks = () => _get('network')
-
-  /**
-   * Get Network Details
-   * @param {string} id
-   **/
-  const getNetwork = id => _get(`network/${id}`)
-
-  /**
-   * Get Members on a Network
-   * @param {string} networkId - Network ID, a 16 hex digits
-   **/
-  const getMembers = id => _get(`network/${id}/member`)
-
-  /**
-   * Get a specific Member on a Network
-   * @param {string} networkId - Network ID, a 16 hex digits
-   * @param {string} nodeId - Node ID, a 10 hex digits
-   **/
-  const getMember = (networkId, memberId) =>
-    _get(`network/${networkId}/member/${memberId}`)
-
-  /**
-   * Post the config of a specific Network
-   * @param {string} networkId - Network ID, a 16 hex digits
-   * @param {string} data - config object
-   **/
-  const setNetwork = (networkId, data) =>
-    _set(`network/${networkId}`, data)
-
-  /**
-   * Create a new network
-   * @param {string} networkId - Network ID, a 16 hex digits
-   * @param {string} data - config object
-   **/
-  const createNetwork = (data) =>
-    _set('network', data)
-
-  /**
-   * Post the config of a specific Network Member
-   * @param {string} networkId - Network ID, a 16 hex digits
-   * @param {string} nodeId - Node ID, a 10 hex digits
-   * @param {string} data - config object
-   **/
-  const setMember = (networkId, nodeId, data) =>
-    _set(`network/${networkId}/member/${nodeId}`, data)
+  // will throw if invalid base
+  new URL('/', base) // eslint-disable-line no-new
 
   return {
-    getStatus,
-    getRandomToken,
-    getNetworks,
-    getNetwork,
-    getMembers,
-    getMember,
-    setNetwork,
-    createNetwork,
-    setMember
+    networkList,
+    networkGet,
+    networkCreate,
+    networkUpdate,
+    networkDelete,
+    memberList,
+    memberGet,
+    memberUpdate,
+    statusGet
+  }
+
+  function make (path, method) {
+    assert(typeof path === 'string', 'path should be a string, got: ', path)
+
+    const result = {
+      url: `${base}${path}`,
+      method,
+      headers
+    }
+
+    return result
+  }
+
+  function get (path) {
+    return make(path, 'get')
+  }
+  function del (path) {
+    return make(path, 'delete')
+  }
+
+  function post (path) {
+    return make(path, 'post')
+  }
+
+  function networkList () {
+    return get('/network')
+  }
+
+  function networkGet (nwid) {
+    assertNWID(nwid)
+
+    return get(`/network/${nwid}`)
+  }
+
+  function networkCreate () {
+    return post('/network')
+  }
+
+  function networkUpdate (nwid) {
+    assertNWID(nwid)
+    return post(`/network/${nwid}`)
+  }
+
+  function networkDelete (nwid) {
+    assertNWID(nwid)
+    return del(`/network/${nwid}`)
+  }
+
+  function memberList (nwid) {
+    assertNWID(nwid)
+    return get(`/network/${nwid}/member`)
+  }
+
+  function memberGet (nwid, nodeId) {
+    assertNWID(nwid)
+    assertNodeId(nodeId)
+    return get(`/network/${nwid}/member/${nodeId}`)
+  }
+
+  function memberUpdate (nwid, nodeId) {
+    assertNWID(nwid)
+    assertNodeId(nodeId)
+    return post(`/network/${nwid}/member/${nodeId}`)
+  }
+
+  function statusGet (nwid) {
+    return get('/status')
   }
 }
 
-/**
- * returns what you'd pass to Fetch/Request(resource, init)
- **/
-function setupRequest (path, _base, init) {
-  const resource = `${_base}${path}`
-  return { resource, init }
-}
-
-function jsonErr (url) {
-  throw JsonError.create(
-    'Json Error. Maybe this is not a JSON path. url={url}',
-    {
-      url
-    }
+function assertNWID (nwid) {
+  assert(
+    nwid.match(networkIdRegex),
+    'Invalid Network ID. A network ID is 16 hex characters. Got: ' + nwid
   )
 }
 
-function errFromStatusCode (res, json) {
-  const { status: statusCode, url } = res
-
-  switch (statusCode) {
-    case 401: {
-      return AuthenticationError.create(
-        'Not authenticated. Wrong token? Not logged in? url={url}',
-        { url, statusCode }
-      )
-    }
-    case 403: {
-      return AuthorizationError.create(
-        'Authorization error. Not permittted. url={url}',
-        {
-          url,
-          statusCode
-        }
-      )
-    }
-    case 404: {
-      return NotFoundError.create('Not Found.  url={url}', {
-        url,
-        statusCode
-      })
-    }
-    default: {
-      return HttpError.create('Unknown HTTP error url={url}', {
-        url,
-        statusCode
-      })
-    }
-  }
+function assertNodeId (nodeId) {
+  assert(
+    nodeId.match(nodeIdRegex),
+    'Invalid node ID. A node ID is 10 hex characters. Got: ' + nodeId
+  )
 }
+
+Central.withToken = function (token) {
+  return Central({ token })
+}
+
+Central.withBase = function (base) {
+  return Central({ base })
+}
+
+const networkIdRegex = /^[0-9a-fA-F]{16}$/
+const nodeIdRegex = /^[0-9a-fA-F]{10}$/
+
+module.exports = Central
