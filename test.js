@@ -136,7 +136,37 @@ test('member - update', t => {
   t.end()
 })
 
-test.only('axios', async t => {
+test('network user - list', t => {
+  const central = Central()
+  const { url, ...opts } = central.networkUserList('6b3e0de52313eae8')
+
+  t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8/users', url)
+  t.equal('get', opts.method)
+
+  t.end()
+})
+
+test('network user - post', t => {
+  const central = Central()
+  const { url, ...opts } = central.networkUserCreate('6b3e0de52313eae8')
+
+  t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8/users', url)
+  t.equal('post', opts.method)
+
+  t.end()
+})
+
+test('network user - delete', t => {
+  const central = Central()
+  const { url, ...opts } = central.networkUserDelete('6b3e0de52313eae8', 'c42645f3-85e0-4774-bf39-bc34f8365764')
+
+  t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8/users/c42645f3-85e0-4774-bf39-bc34f8365764', url)
+  t.equal('post', opts.method)
+
+  t.end()
+})
+
+test('axios and fetch for real', async t => {
   if (process.env.CENTRAL_TOKEN) {
     const central = Central({ token: process.env.API_TOKEN })
 

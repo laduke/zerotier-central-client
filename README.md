@@ -3,7 +3,7 @@
 (my.zerotier.com)
 
 Bring your own fetch.
-No dependencies! Pure functions!
+No dependencies, pure functions, etc
 
 ## Install
 `npm install @laduke/zerotier-central-client`
@@ -12,6 +12,8 @@ No dependencies! Pure functions!
 In node you need the api access token from my.zerotier.com.
 In the browser it'll use cookies, so no token required.
 This doesn't depend on any of the [many fetch/request modules](https://github.com/request/request/issues/3143) out there, but returns objects that should be easy to pass into any of them.
+Maybe you're already using something like that and don't need another dependency.
+
 
 ```javascript
   const central = Central({ token: process.env.API_TOKEN })

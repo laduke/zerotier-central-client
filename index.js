@@ -1,5 +1,15 @@
 const assert = require('assert')
 
+/**
+ * ZeroTier Central API endpoints
+ */
+
+/**
+ * Returns an object with methods the api endpoints.
+ * @namespace Central
+ * @param {Object} options
+ * @param {String} options.token - Central API token
+ */
 function Central (opts = {}) {
   if (opts.token) {
     assert(
@@ -19,14 +29,18 @@ function Central (opts = {}) {
   new URL('/', base) // eslint-disable-line no-new
 
   return {
-    networkList,
-    networkGet,
-    networkCreate,
-    networkUpdate,
-    networkDelete,
-    memberList,
     memberGet,
+    memberList,
     memberUpdate,
+    networkCreate,
+    networkDelete,
+    networkGet,
+    networkList,
+    networkUpdate,
+    networkUserCreate,
+    networkUserDelete,
+    networkUserList,
+    networkUserUpdate,
     statusGet
   }
 
@@ -57,52 +71,78 @@ function Central (opts = {}) {
     return get('/network')
   }
 
-  function networkGet (nwid) {
-    assertNWID(nwid)
+  /**
+   * @param {String} networkId - 16 Hex characters
+   * @memberof Central
+   * @instance
+   */
+  function networkGet (networkId) {
+    assertNWID(networkId)
 
-    return get(`/network/${nwid}`)
+    return get(`/network/${networkId}`)
   }
 
   function networkCreate () {
     return post('/network')
   }
 
-  function networkUpdate (nwid) {
-    assertNWID(nwid)
-    return post(`/network/${nwid}`)
+  function networkUpdate (networkId) {
+    assertNWID(networkId)
+    return post(`/network/${networkId}`)
   }
 
-  function networkDelete (nwid) {
-    assertNWID(nwid)
-    return del(`/network/${nwid}`)
+  function networkDelete (networkId) {
+    assertNWID(networkId)
+    return del(`/network/${networkId}`)
   }
 
-  function memberList (nwid) {
-    assertNWID(nwid)
-    return get(`/network/${nwid}/member`)
+  function memberList (networkId) {
+    assertNWID(networkId)
+    return get(`/network/${networkId}/member`)
   }
 
-  function memberGet (nwid, nodeId) {
-    assertNWID(nwid)
+  function memberGet (networkId, nodeId) {
+    assertNWID(networkId)
     assertNodeId(nodeId)
-    return get(`/network/${nwid}/member/${nodeId}`)
+    return get(`/network/${networkId}/member/${nodeId}`)
   }
 
-  function memberUpdate (nwid, nodeId) {
-    assertNWID(nwid)
+  function memberUpdate (networkId, nodeId) {
+    assertNWID(networkId)
     assertNodeId(nodeId)
-    return post(`/network/${nwid}/member/${nodeId}`)
+    return post(`/network/${networkId}/member/${nodeId}`)
   }
 
-  function statusGet (nwid) {
+  function statusGet () {
     return get('/status')
+  }
+
+  function networkUserList (networkId) {
+    assertNWID(networkId)
+    return get(`/network/${networkId}/users`)
+  }
+
+  function networkUserCreate (networkId) {
+    assertNWID(networkId)
+    return post(`/network/${networkId}/users`)
+  }
+
+  function networkUserUpdate (networkId) {
+    assertNWID(networkId)
+    return post(`/network/${networkId}/users`)
+  }
+
+  function networkUserDelete (networkId, uid) {
+    assertNWID(networkId)
+    assert(uid.match(uuidRegex), 'userId should be a uuid. Got: ' + uid)
+    return post(`/network/${networkId}/users/${uid}`)
   }
 }
 
-function assertNWID (nwid) {
+function assertNWID (networkId) {
   assert(
-    nwid.match(networkIdRegex),
-    'Invalid Network ID. A network ID is 16 hex characters. Got: ' + nwid
+    networkId.match(networkIdRegex),
+    'Invalid Network ID. A network ID is 16 hex characters. Got: ' + networkId
   )
 }
 
@@ -121,7 +161,8 @@ Central.withBase = function (base) {
   return Central({ base })
 }
 
-const networkIdRegex = /^[0-9a-fA-F]{16}$/
 const nodeIdRegex = /^[0-9a-fA-F]{10}$/
+const networkIdRegex = /^[0-9a-fA-F]{16}$/
+const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
 module.exports = Central
