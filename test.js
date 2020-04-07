@@ -136,6 +136,16 @@ test('member - update', t => {
   t.end()
 })
 
+test('member - delete', t => {
+  const central = Central()
+  const { url, ...opts } = central.memberDelete('6b3e0de52313eae8', '1122334455')
+
+  t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8/member/1122334455', url)
+  t.equal('delete', opts.method)
+
+  t.end()
+})
+
 test('network user - list', t => {
   const central = Central()
   const { url, ...opts } = central.networkUserList('6b3e0de52313eae8')

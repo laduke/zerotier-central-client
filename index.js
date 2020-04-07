@@ -32,6 +32,7 @@ function Central (opts = {}) {
     memberGet,
     memberList,
     memberUpdate,
+    memberDelete,
     networkCreate,
     networkDelete,
     networkGet,
@@ -111,6 +112,12 @@ function Central (opts = {}) {
     assertNWID(networkId)
     assertNodeId(nodeId)
     return post(`/network/${networkId}/member/${nodeId}`)
+  }
+
+  function memberDelete (networkId, nodeId) {
+    assertNWID(networkId)
+    assertNodeId(nodeId)
+    return del(`/network/${networkId}/member/${nodeId}`)
   }
 
   function statusGet () {
