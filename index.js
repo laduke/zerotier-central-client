@@ -148,6 +148,7 @@ function Central (opts = {}) {
 
 function assertNWID (networkId) {
   assert(
+    typeof networkId === 'string' &&
     networkId.match(networkIdRegex),
     'Invalid Network ID. A network ID is 16 hex characters. Got: ' + networkId
   )
@@ -155,6 +156,7 @@ function assertNWID (networkId) {
 
 function assertNodeId (nodeId) {
   assert(
+    typeof nodeId === 'string' &&
     nodeId.match(nodeIdRegex),
     'Invalid node ID. A node ID is 10 hex characters. Got: ' + nodeId
   )
