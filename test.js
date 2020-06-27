@@ -166,6 +166,16 @@ test('network user - post', t => {
   t.end()
 })
 
+test('network user - update', t => {
+  const central = Central()
+  const { url, ...opts } = central.networkUserUpdate('6b3e0de52313eae8')
+
+  t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8/users', url)
+  t.equal('post', opts.method)
+
+  t.end()
+})
+
 test('network user - delete', t => {
   const central = Central()
   const { url, ...opts } = central.networkUserDelete('6b3e0de52313eae8', 'c42645f3-85e0-4774-bf39-bc34f8365764')
