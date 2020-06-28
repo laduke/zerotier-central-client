@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>README.html<zerotier-central-client></title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+
+</head>
+
+<body>
+
+<h1 id="zerotier-central-api-client">ZeroTier Central API client</h1>
+<p>(my.zerotier.com)</p>
+<p>Bring your own fetch. No dependencies, pure functions, etc</p>
+<h2 id="install">Install</h2>
+<p><code>npm install @laduke/zerotier-central-client</code></p>
+<h2 id="usage">Usage</h2>
+<p>In node you need the api access token from my.zerotier.com. In the browser it’ll use cookies, so no token required. This doesn’t depend on any of the <a href="https://github.com/request/request/issues/3143">many fetch/request modules</a> out there, but returns objects that should be easy to pass into any of them.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode javascript"><code class="sourceCode javascript"><span id="cb1-1"><a href="#cb1-1"></a>  <span class="kw">const</span> optz <span class="op">=</span> <span class="op">{</span> <span class="dt">token</span><span class="op">:</span> <span class="va">process</span>.<span class="va">env</span>.<span class="at">API_TOKEN</span> <span class="op">}</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a></span>
+<span id="cb1-3"><a href="#cb1-3"></a>  <span class="kw">const</span> axios <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;axios&#39;</span>).<span class="at">default</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a>  <span class="kw">const</span> result <span class="op">=</span> <span class="cf">await</span> <span class="at">axios</span>(<span class="va">central</span>.<span class="at">statusGet</span>(optz))</span>
+<span id="cb1-5"><a href="#cb1-5"></a>  <span class="va">console</span>.<span class="at">log</span>(result)</span>
+<span id="cb1-6"><a href="#cb1-6"></a></span>
+<span id="cb1-7"><a href="#cb1-7"></a>  <span class="kw">const</span> fetch <span class="op">=</span> <span class="at">require</span>(<span class="st">&#39;node-fetch&#39;</span>)</span>
+<span id="cb1-8"><a href="#cb1-8"></a>  <span class="kw">const</span> <span class="op">{</span> url<span class="op">,</span> ...<span class="at">opts</span> <span class="op">}</span> <span class="op">=</span> <span class="va">central</span>.<span class="at">statusGet</span>(optz)</span>
+<span id="cb1-9"><a href="#cb1-9"></a>  <span class="kw">const</span> result2 <span class="op">=</span> <span class="cf">await</span> <span class="at">fetch</span>(url<span class="op">,</span> opts).<span class="at">then</span>(res <span class="kw">=&gt;</span> <span class="va">res</span>.<span class="at">json</span>())</span>
+<span id="cb1-10"><a href="#cb1-10"></a>  <span class="va">console</span>.<span class="at">log</span>(result2)</span></code></pre></div>
+<h2 id="todo">TODO</h2>
+<ul>
+<li><input type="checkbox" disabled="" />
+jsdoc</li>
+</ul>
+
+</body>
+</html>

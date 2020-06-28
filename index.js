@@ -4,166 +4,214 @@ const assert = require('assert')
  * ZeroTier Central API endpoints
  */
 
-/**
- * Returns an object with methods the api endpoints.
- * @namespace Central
- * @param {Object} options
- * @param {String} options.token - Central API token
- */
-function Central (opts = {}) {
-  if (opts.token) {
-    assert(
-      typeof opts.token === 'string' && opts.token.length > 0,
-      'API Token should be a string, if defined. Got: ' + opts.token
-    )
-  }
-
-  const token = opts.token
-  const base = opts.base || 'https://my.zerotier.com/api'
-  const headers = {
-    'content-type': 'application/json',
-    ...(token ? { authorization: `bearer ${token}` } : null)
-  }
-
-  // will throw if invalid base
-  new URL('/', base) // eslint-disable-line no-new
-
-  return {
-    memberGet,
-    memberList,
-    memberUpdate,
-    memberDelete,
-    networkCreate,
-    networkDelete,
-    networkGet,
-    networkList,
-    networkUpdate,
-    networkUserCreate,
-    networkUserDelete,
-    networkUserList,
-    networkUserUpdate,
-    statusGet
-  }
-
-  function make (path, method) {
-    assert(typeof path === 'string', 'path should be a string, got: ', path)
-
-    const result = {
-      url: `${base}${path}`,
-      method,
-      headers
-    }
-
-    return result
-  }
-
-  function get (path) {
-    return make(path, 'get')
-  }
-  function del (path) {
-    return make(path, 'delete')
-  }
-
-  function post (path) {
-    return make(path, 'post')
-  }
-
-  function networkList () {
-    return get('/network')
-  }
-
-  /**
-   * @param {String} networkId - 16 Hex characters
-   * @memberof Central
-   * @instance
-   */
-  function networkGet (networkId) {
-    assertNWID(networkId)
-
-    return get(`/network/${networkId}`)
-  }
-
-  function networkCreate () {
-    return post('/network')
-  }
-
-  function networkUpdate (networkId) {
-    assertNWID(networkId)
-    return post(`/network/${networkId}`)
-  }
-
-  function networkDelete (networkId) {
-    assertNWID(networkId)
-    return del(`/network/${networkId}`)
-  }
-
-  function memberList (networkId) {
-    assertNWID(networkId)
-    return get(`/network/${networkId}/member`)
-  }
-
-  function memberGet (networkId, nodeId) {
-    assertNWID(networkId)
-    assertNodeId(nodeId)
-    return get(`/network/${networkId}/member/${nodeId}`)
-  }
-
-  function memberUpdate (networkId, nodeId) {
-    assertNWID(networkId)
-    assertNodeId(nodeId)
-    return post(`/network/${networkId}/member/${nodeId}`)
-  }
-
-  function memberDelete (networkId, nodeId) {
-    assertNWID(networkId)
-    assertNodeId(nodeId)
-    return del(`/network/${networkId}/member/${nodeId}`)
-  }
-
-  function statusGet () {
-    return get('/status')
-  }
-
-  function networkUserList (networkId) {
-    assertNWID(networkId)
-    return get(`/network/${networkId}/users`)
-  }
-
-  function networkUserCreate (networkId) {
-    assertNWID(networkId)
-    return post(`/network/${networkId}/users`)
-  }
-
-  function networkUserUpdate (networkId) {
-    assertNWID(networkId)
-    return post(`/network/${networkId}/users`)
-  }
-
-  function networkUserDelete (networkId, uid) {
-    assertNWID(networkId)
-    assert(uid.match(uuidRegex), 'userId should be a uuid. Got: ' + uid)
-    return post(`/network/${networkId}/users/${uid}`)
-  }
-}
-
 function assertNWID (networkId) {
   assert(
-    typeof networkId === 'string' &&
-    networkId.match(networkIdRegex),
+    typeof networkId === 'string' && networkId.match(networkIdRegex),
     'Invalid Network ID. A network ID is 16 hex characters. Got: ' + networkId
   )
 }
 
 function assertNodeId (nodeId) {
   assert(
-    typeof nodeId === 'string' &&
-    nodeId.match(nodeIdRegex),
+    typeof nodeId === 'string' && nodeId.match(nodeIdRegex),
     'Invalid node ID. A node ID is 10 hex characters. Got: ' + nodeId
   )
 }
 
+function assertUserId (userId) {
+  assert(
+    typeof userId === 'string',
+    'Invalid User ID. A user ID is a long string, a UUID: ' + userId
+  )
+}
 const nodeIdRegex = /^[0-9a-fA-F]{10}$/
 const networkIdRegex = /^[0-9a-fA-F]{16}$/
-const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
-module.exports = Central
+// module.exports = Central
+const BASE = 'https://my.zerotier.com/api'
+const GET = 'get'
+const POST = 'post'
+const DEL = 'delete'
+
+module.exports = {
+  memberList,
+  networkCreate,
+  networkDelete,
+  networkGet,
+  networkList,
+  networkUpdate,
+  statusGet,
+  memberGet,
+  memberUpdate,
+  memberDelete,
+  networkUserList,
+  networkUserCreate,
+  networkUserUpdate,
+  networkUserDelete
+}
+
+function networkUserDelete (networkId, userId, opts = {}) {
+  assertNWID(networkId)
+  assertUserId(userId)
+
+  const { token, base = BASE } = opts
+  const path = `/network/${networkId}/users/${userId}`
+  const method = DEL
+
+  return make({ base, path, method, token })
+}
+
+function networkUserUpdate (networkId, userId, opts = {}) {
+  assertNWID(networkId)
+  assertUserId(userId)
+
+  const { token, base = BASE } = opts
+  const path = `/network/${networkId}/users/${userId}`
+  const method = POST
+
+  return make({ base, path, method, token })
+}
+
+function networkUserCreate (networkId, userId, opts = {}) {
+  assertNWID(networkId)
+
+  const { token, base = BASE } = opts
+  const path = `/network/${networkId}/users/${userId}`
+  const method = POST
+
+  return make({ base, path, method, token })
+}
+
+function networkUserList (networkId, opts = {}) {
+  assertNWID(networkId)
+
+  const { token, base = BASE } = opts
+  const path = `/network/${networkId}/users`
+  const method = GET
+
+  return make({ base, path, method, token })
+}
+function memberDelete (networkId, memberId, opts = {}) {
+  assertNWID(networkId)
+  assertNodeId(memberId)
+
+  const { token, base = BASE } = opts
+  const path = `/network/${networkId}/member/${memberId}`
+  const method = DEL
+
+  return make({ base, path, method, token })
+}
+
+function memberUpdate (networkId, memberId, opts = {}) {
+  assertNWID(networkId)
+  assertNodeId(memberId)
+
+  const { token, base = BASE } = opts
+  const path = `/network/${networkId}/member/${memberId}`
+  const method = POST
+
+  return make({ base, path, method, token })
+}
+
+function memberGet (networkId, memberId, opts = {}) {
+  assertNWID(networkId)
+  assertNodeId(memberId)
+
+  const { token, base = BASE } = opts
+  const path = `/network/${networkId}/member/${memberId}`
+  const method = GET
+
+  return make({ base, path, method, token })
+}
+function memberList (networkId, opts = {}) {
+  assertNWID(networkId)
+
+  const { token, base = BASE } = opts
+  const path = `/network/${networkId}/member`
+  const method = GET
+
+  return make({ base, path, method, token })
+}
+
+function statusGet (opts = {}) {
+  const { token, base = BASE } = opts
+  const path = '/status'
+  const method = GET
+
+  return make({ base, path, method, token })
+}
+
+function networkUpdate (networkId, opts = {}) {
+  const { token, base = BASE } = opts
+
+  const path = `/network/${networkId}`
+  const method = POST
+
+  return make({ base, path, method, token })
+}
+
+function networkList (opts = {}) {
+  const { token, base = BASE } = opts
+  const path = '/network'
+  const method = GET
+
+  return make({ base, path, method, token })
+}
+
+function networkGet (networkId, opts = {}) {
+  assertNWID(networkId)
+
+  const { token, base = BASE } = opts
+  const path = `/network/${networkId}`
+  const method = GET
+
+  return make({ base, path, method, token })
+}
+
+function networkDelete (networkId, opts = {}) {
+  assertNWID(networkId)
+
+  const { token, base = BASE } = opts
+  const path = `/network/${networkId}`
+  const method = DEL
+
+  return make({ base, path, method, token })
+}
+
+function networkCreate (opts = {}) {
+  const { token, base = BASE } = opts
+
+  const path = '/network'
+  const method = POST
+
+  return make({ base, path, method, token })
+}
+
+function make ({ base, path, method, token }) {
+  assert(typeof path === 'string', 'path should be a string, got: ', path)
+
+  if (token) {
+    assert(
+      typeof token === 'string' && token.length > 0,
+      'API Token should be a string, if defined. Got: ' + token
+    )
+  }
+
+  // will throw if invalid base
+  new URL('/', base) // eslint-disable-line no-new
+
+  const result = {
+    url: `${base}${path}`,
+    method,
+    headers: headers(token)
+  }
+
+  return result
+}
+
+function headers (token) {
+  return {
+    'content-type': 'application/json',
+    ...(token ? { authorization: `bearer ${token}` } : null)
+  }
+}
