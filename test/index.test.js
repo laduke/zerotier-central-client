@@ -1,6 +1,6 @@
 const test = require('tape')
 
-const central = require('./index.js')
+const central = require('../index.js')
 
 test('token is in header', t => {
   const opts = { token: '1234' }
