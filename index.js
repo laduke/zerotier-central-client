@@ -33,7 +33,7 @@ const GET = 'get'
 const POST = 'post'
 const DEL = 'delete'
 
-module.exports = {
+const methods = {
   memberList,
   networkCreate,
   networkDelete,
@@ -50,6 +50,20 @@ module.exports = {
   networkUserDelete
 }
 
+module.exports = methods
+module.exports.withDefaults = withDefaults
+
+// wrap it so consumer doesn't provide options in their calls
+function withDefaults (opts) {
+  return Object.keys(methods).reduce((acc, key) => {
+    return {
+      ...acc,
+      [key]: function (...rest) {
+        return methods[key]({ ...opts }, ...rest)
+      }
+    }
+  }, {})
+}
 function networkUserDelete (opts, networkId, userId) {
   assertNWID(networkId)
   assertUserId(userId)

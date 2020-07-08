@@ -101,7 +101,11 @@ test('member - list', t => {
 })
 
 test('member - get', t => {
-  const { url, ...opts } = central.memberGet(o, '6b3e0de52313eae8', '1122334455')
+  const { url, ...opts } = central.memberGet(
+    o,
+    '6b3e0de52313eae8',
+    '1122334455'
+  )
 
   t.equal(
     'https://my.zerotier.com/api/network/6b3e0de52313eae8/member/1122334455',
@@ -163,7 +167,11 @@ test('network user - list', t => {
 })
 
 test('network user - post', t => {
-  const { url, ...opts } = central.networkUserCreate(o, '6b3e0de52313eae8', uuid)
+  const { url, ...opts } = central.networkUserCreate(
+    o,
+    '6b3e0de52313eae8',
+    uuid
+  )
 
   t.equal(
     'https://my.zerotier.com/api/network/6b3e0de52313eae8/users/' + uuid,
@@ -175,7 +183,11 @@ test('network user - post', t => {
 })
 
 test('network user - update', t => {
-  const { url, ...opts } = central.networkUserUpdate(o, '6b3e0de52313eae8', uuid)
+  const { url, ...opts } = central.networkUserUpdate(
+    o,
+    '6b3e0de52313eae8',
+    uuid
+  )
 
   t.equal(
     'https://my.zerotier.com/api/network/6b3e0de52313eae8/users/' + uuid,
@@ -187,13 +199,35 @@ test('network user - update', t => {
 })
 
 test('network user - delete', t => {
-  const { url, ...opts } = central.networkUserDelete(o, '6b3e0de52313eae8', uuid)
+  const { url, ...opts } = central.networkUserDelete(
+    o,
+    '6b3e0de52313eae8',
+    uuid
+  )
 
   t.equal(
     'https://my.zerotier.com/api/network/6b3e0de52313eae8/users/c42645f3-85e0-4774-bf39-bc34f8365764',
     url
   )
   t.equal('delete', opts.method)
+
+  t.end()
+})
+
+test('with defaults', t => {
+  const opts = {
+    base: '/api',
+    token: 'hello'
+  }
+  const networkId = '1122334455112233'
+  const api = require('../index.js').withDefaults(opts)
+
+  t.deepEqual(central.networkGet(opts, networkId), api.networkGet(networkId))
+  t.deepEqual(central.statusGet(opts), api.statusGet())
+  t.deepEqual(
+    central.memberUpdate(opts, networkId, '1122334455'),
+    api.memberUpdate(networkId, '1122334455')
+  )
 
   t.end()
 })
