@@ -1,6 +1,6 @@
 {
   "name": "@laduke/zerotier-central-client",
-  "version": "0.2.1",
+  "version": "0.3.1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/laduke/zerotier-central-client.git"

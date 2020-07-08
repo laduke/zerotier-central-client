@@ -50,7 +50,7 @@ module.exports = {
   networkUserDelete
 }
 
-function networkUserDelete (networkId, userId, opts = {}) {
+function networkUserDelete (opts, networkId, userId) {
   assertNWID(networkId)
   assertUserId(userId)
 
@@ -61,7 +61,7 @@ function networkUserDelete (networkId, userId, opts = {}) {
   return make({ base, path, method, token })
 }
 
-function networkUserUpdate (networkId, userId, opts = {}) {
+function networkUserUpdate (opts, networkId, userId) {
   assertNWID(networkId)
   assertUserId(userId)
 
@@ -72,7 +72,7 @@ function networkUserUpdate (networkId, userId, opts = {}) {
   return make({ base, path, method, token })
 }
 
-function networkUserCreate (networkId, userId, opts = {}) {
+function networkUserCreate (opts, networkId, userId) {
   assertNWID(networkId)
 
   const { token, base = BASE } = opts
@@ -82,7 +82,7 @@ function networkUserCreate (networkId, userId, opts = {}) {
   return make({ base, path, method, token })
 }
 
-function networkUserList (networkId, opts = {}) {
+function networkUserList (opts, networkId) {
   assertNWID(networkId)
 
   const { token, base = BASE } = opts
@@ -91,7 +91,7 @@ function networkUserList (networkId, opts = {}) {
 
   return make({ base, path, method, token })
 }
-function memberDelete (networkId, memberId, opts = {}) {
+function memberDelete (opts, networkId, memberId) {
   assertNWID(networkId)
   assertNodeId(memberId)
 
@@ -102,7 +102,7 @@ function memberDelete (networkId, memberId, opts = {}) {
   return make({ base, path, method, token })
 }
 
-function memberUpdate (networkId, memberId, opts = {}) {
+function memberUpdate (opts, networkId, memberId) {
   assertNWID(networkId)
   assertNodeId(memberId)
 
@@ -113,7 +113,7 @@ function memberUpdate (networkId, memberId, opts = {}) {
   return make({ base, path, method, token })
 }
 
-function memberGet (networkId, memberId, opts = {}) {
+function memberGet (opts, networkId, memberId) {
   assertNWID(networkId)
   assertNodeId(memberId)
 
@@ -123,7 +123,8 @@ function memberGet (networkId, memberId, opts = {}) {
 
   return make({ base, path, method, token })
 }
-function memberList (networkId, opts = {}) {
+
+function memberList (opts, networkId) {
   assertNWID(networkId)
 
   const { token, base = BASE } = opts
@@ -141,7 +142,7 @@ function statusGet (opts = {}) {
   return make({ base, path, method, token })
 }
 
-function networkUpdate (networkId, opts = {}) {
+function networkUpdate (opts, networkId) {
   const { token, base = BASE } = opts
 
   const path = `/network/${networkId}`
@@ -158,7 +159,7 @@ function networkList (opts = {}) {
   return make({ base, path, method, token })
 }
 
-function networkGet (networkId, opts = {}) {
+function networkGet (opts, networkId) {
   assertNWID(networkId)
 
   const { token, base = BASE } = opts
@@ -168,7 +169,7 @@ function networkGet (networkId, opts = {}) {
   return make({ base, path, method, token })
 }
 
-function networkDelete (networkId, opts = {}) {
+function networkDelete (opts = {}, networkId) {
   assertNWID(networkId)
 
   const { token, base = BASE } = opts
@@ -196,9 +197,6 @@ function make ({ base, path, method, token }) {
       'API Token should be a string, if defined. Got: ' + token
     )
   }
-
-  // will throw if invalid base
-  new URL('/', base) // eslint-disable-line no-new
 
   const result = {
     url: `${base}${path}`,
