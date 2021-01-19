@@ -28,6 +28,31 @@ This doesn't depend on any of the [many fetch/request modules](https://github.co
 
 ```
 
+There is a wrapper so you don't have to pass the options every time:
+
+```javascript
+const axios = require("axios").default;
+
+const { withDefaults } = require("zerotier-central-client");
+
+run();
+
+async function run() {
+  const opts = { token: "your-api-token" };
+
+  central = withDefaults(opts);
+
+  const networkId = "1122334455112233";
+
+  const status = await axios(central.statusGet());
+  console.log(status.data);
+
+  const members = await axios(central.memberList(networkId));
+  console.log(members.data);
+}
+
+```
+
 ## TODO
 - [ ] jsdoc
 
