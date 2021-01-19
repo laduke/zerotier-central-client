@@ -15,12 +15,12 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "axios": "^0.19.2",
-    "eslint-config-standard": "^14.1.1",
-    "node-fetch": "^2.6.0",
+    "axios": "^0.21.1",
+    "eslint-config-standard": "^16.0.2",
+    "node-fetch": "^2.6.1",
     "nyc": "^15.1.0",
-    "standard": "^14.3.4",
-    "tape": "^5.0.1"
+    "standard": "^16.0.3",
+    "tape": "^5.1.1"
   },
   "description": "(my.zerotier.com)",
   "bugs": {
