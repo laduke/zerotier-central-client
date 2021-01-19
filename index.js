@@ -64,6 +64,26 @@ function withDefaults (opts) {
     }
   }, {})
 }
+
+function make ({ base = BASE, path, method, token }) {
+  assert(typeof path === 'string', 'path should be a string, got: ', path)
+
+  if (token) {
+    assert(
+      typeof token === 'string' && token.length > 0,
+      'API Token should be a string, if defined. Got: ' + token
+    )
+  }
+
+  const result = {
+    url: `${base}${path}`,
+    method,
+    headers: headers(token)
+  }
+
+  return result
+}
+
 function networkUserDelete (opts, networkId, userId) {
   assertNWID(networkId)
   assertUserId(userId)
@@ -184,25 +204,6 @@ function networkCreate (opts = {}) {
   const method = POST
 
   return make({ ...opts, path, method })
-}
-
-function make ({ base = BASE, path, method, token }) {
-  assert(typeof path === 'string', 'path should be a string, got: ', path)
-
-  if (token) {
-    assert(
-      typeof token === 'string' && token.length > 0,
-      'API Token should be a string, if defined. Got: ' + token
-    )
-  }
-
-  const result = {
-    url: `${base}${path}`,
-    method,
-    headers: headers(token)
-  }
-
-  return result
 }
 
 function headers (token) {
