@@ -68,141 +68,125 @@ function networkUserDelete (opts, networkId, userId) {
   assertNWID(networkId)
   assertUserId(userId)
 
-  const { token, base = BASE } = opts
   const path = `/network/${networkId}/users/${userId}`
   const method = DEL
 
-  return make({ base, path, method, token })
+  return make({ ...opts, path, method })
 }
 
 function networkUserUpdate (opts, networkId, userId) {
   assertNWID(networkId)
   assertUserId(userId)
 
-  const { token, base = BASE } = opts
   const path = `/network/${networkId}/users/${userId}`
   const method = POST
 
-  return make({ base, path, method, token })
+  return make({ ...opts, path, method })
 }
 
 function networkUserCreate (opts, networkId, userId) {
   assertNWID(networkId)
 
-  const { token, base = BASE } = opts
   const path = `/network/${networkId}/users/${userId}`
   const method = POST
 
-  return make({ base, path, method, token })
+  return make({ ...opts, path, method })
 }
 
 function networkUserList (opts, networkId) {
   assertNWID(networkId)
 
-  const { token, base = BASE } = opts
   const path = `/network/${networkId}/users`
   const method = GET
 
-  return make({ base, path, method, token })
+  return make({ ...opts, path, method })
 }
 function memberDelete (opts, networkId, memberId) {
   assertNWID(networkId)
   assertNodeId(memberId)
 
-  const { token, base = BASE } = opts
   const path = `/network/${networkId}/member/${memberId}`
   const method = DEL
 
-  return make({ base, path, method, token })
+  return make({ ...opts, path, method })
 }
 
 function memberUpdate (opts, networkId, memberId) {
   assertNWID(networkId)
   assertNodeId(memberId)
 
-  const { token, base = BASE } = opts
   const path = `/network/${networkId}/member/${memberId}`
   const method = POST
 
-  return make({ base, path, method, token })
+  return make({ ...opts, path, method })
 }
 
 function memberGet (opts, networkId, memberId) {
   assertNWID(networkId)
   assertNodeId(memberId)
 
-  const { token, base = BASE } = opts
   const path = `/network/${networkId}/member/${memberId}`
   const method = GET
 
-  return make({ base, path, method, token })
+  return make({ ...opts, path, method })
 }
 
 function memberList (opts, networkId) {
   assertNWID(networkId)
 
-  const { token, base = BASE } = opts
   const path = `/network/${networkId}/member`
   const method = GET
 
-  return make({ base, path, method, token })
+  return make({ ...opts, path, method })
 }
 
 function statusGet (opts = {}) {
-  const { token, base = BASE } = opts
   const path = '/status'
   const method = GET
 
-  return make({ base, path, method, token })
+  return make({ ...opts, path, method })
 }
 
 function networkUpdate (opts, networkId) {
-  const { token, base = BASE } = opts
-
   const path = `/network/${networkId}`
   const method = POST
 
-  return make({ base, path, method, token })
+  return make({ ...opts, path, method })
 }
 
 function networkList (opts = {}) {
-  const { token, base = BASE } = opts
   const path = '/network'
   const method = GET
 
-  return make({ base, path, method, token })
+  return make({ ...opts, path, method })
 }
 
 function networkGet (opts, networkId) {
   assertNWID(networkId)
 
-  const { token, base = BASE } = opts
   const path = `/network/${networkId}`
   const method = GET
 
-  return make({ base, path, method, token })
+  return make({ ...opts, path, method })
 }
 
 function networkDelete (opts = {}, networkId) {
   assertNWID(networkId)
 
-  const { token, base = BASE } = opts
   const path = `/network/${networkId}`
   const method = DEL
 
-  return make({ base, path, method, token })
+  return make({ ...opts, path, method })
 }
 
 function networkCreate (opts = {}) {
-  const { token, base = BASE } = opts
-
   const path = '/network'
   const method = POST
 
-  return make({ base, path, method, token })
+  return make({ ...opts, path, method })
 }
 
-function make ({ base, path, method, token }) {
+function make ({ base = BASE, path, method, token }) {
   assert(typeof path === 'string', 'path should be a string, got: ', path)
 
   if (token) {
