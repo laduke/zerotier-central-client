@@ -21,14 +21,6 @@ test('no token is in header', t => {
   t.end()
 })
 
-// not helpful in browser environment
-// need relative paths
-// test('invalid base url', t => {
-//   t.throws(() => central.networkList({ base: 1234 }))
-
-//   t.end()
-// })
-
 test('network - list', t => {
   const { url, ...opts } = central.networkList()
 
@@ -43,14 +35,6 @@ test('network - get', t => {
 
   t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8', url)
   t.equal('get', opts.method)
-
-  t.end()
-})
-
-test('network - get invalid network ID', t => {
-  t.throws(() => central.networkGet(o, 1))
-  t.throws(() => central.networkGet(o, 'zzzzzzzzzzzzzzzz'))
-  t.throws(() => central.networkGet(o))
 
   t.end()
 })
@@ -112,14 +96,6 @@ test('member - get', t => {
     url
   )
   t.equal('get', opts.method)
-
-  t.end()
-})
-
-test('member - get throws', t => {
-  t.throws(() => central.memberGet(o, '6b3e0de52313eae8', 'zzzz'))
-  t.throws(() => central.memberGet(o, 'qqq', '1122334455'))
-  t.throws(() => central.memberGet(o))
 
   t.end()
 })
