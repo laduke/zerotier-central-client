@@ -133,7 +133,7 @@ function networkGet (opts, networkId) {
   return make({ ...opts, path, method })
 }
 
-function networkDelete (opts = {}, networkId) {
+function networkDelete (opts, networkId) {
   const path = `/network/${networkId}`
   const method = DEL
 
