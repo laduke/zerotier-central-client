@@ -1,22 +1,27 @@
 const test = require('tape')
 
-const central = require('../index.js')
+const { Central } = require('../index.js')
 
-const o = {} // empty options
+
+const central = Central({ token: "1234" })
+
+const GET = 'GET'
+const POST = 'POST'
+const DELETE = 'DELETE'
 
 test('token is in header', t => {
-  const opts = { token: '1234' }
-  const res = central.networkList(opts)
+  const res = central.networkList()
 
-  t.equal('bearer 1234', res.headers.authorization)
+  t.equal('bearer 1234', res.headers.Authorization)
 
   t.end()
 })
 
 test('no token is in header', t => {
-  const res = central.networkList(o)
+  const central = Central()
+  const res = central.networkList()
 
-  t.notOk(res.headers.authorization)
+  t.notOk(res.headers.Authorization)
 
   t.end()
 })
@@ -25,16 +30,16 @@ test('network - list', t => {
   const { url, ...opts } = central.networkList()
 
   t.equal('https://my.zerotier.com/api/network', url)
-  t.equal('get', opts.method)
+  t.equal(GET, opts.method)
 
   t.end()
 })
 
 test('network - get', t => {
-  const { url, ...opts } = central.networkGet(o, '6b3e0de52313eae8')
+  const { url, ...opts } = central.networkGet('6b3e0de52313eae8')
 
   t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8', url)
-  t.equal('get', opts.method)
+  t.equal(GET, opts.method)
 
   t.end()
 })
@@ -43,25 +48,25 @@ test('network - create', t => {
   const { url, ...opts } = central.networkCreate()
 
   t.equal('https://my.zerotier.com/api/network', url)
-  t.equal('post', opts.method)
+  t.equal(POST, opts.method)
 
   t.end()
 })
 
 test('network - update', t => {
-  const { url, ...opts } = central.networkUpdate(o, '6b3e0de52313eae8')
+  const { url, ...opts } = central.networkUpdate('6b3e0de52313eae8')
 
   t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8', url)
-  t.equal('post', opts.method)
+  t.equal(POST, opts.method)
 
   t.end()
 })
 
 test('network - delete', t => {
-  const { url, ...opts } = central.networkDelete(o, '6b3e0de52313eae8')
+  const { url, ...opts } = central.networkDelete('6b3e0de52313eae8')
 
   t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8', url)
-  t.equal('delete', opts.method)
+  t.equal(DELETE, opts.method)
 
   t.end()
 })
@@ -70,23 +75,22 @@ test('status - get', t => {
   const { url, ...opts } = central.statusGet()
 
   t.equal('https://my.zerotier.com/api/status', url)
-  t.equal('get', opts.method)
+  t.equal(GET, opts.method)
 
   t.end()
 })
 
 test('member - list', t => {
-  const { url, ...opts } = central.memberList(o, '6b3e0de52313eae8')
+  const { url, ...opts } = central.memberList('6b3e0de52313eae8')
 
   t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8/member', url)
-  t.equal('get', opts.method)
+  t.equal(GET, opts.method)
 
   t.end()
 })
 
 test('member - get', t => {
   const { url, ...opts } = central.memberGet(
-    o,
     '6b3e0de52313eae8',
     '1122334455'
   )
@@ -95,14 +99,13 @@ test('member - get', t => {
     'https://my.zerotier.com/api/network/6b3e0de52313eae8/member/1122334455',
     url
   )
-  t.equal('get', opts.method)
+  t.equal(GET, opts.method)
 
   t.end()
 })
 
 test('member - update', t => {
   const { url, ...opts } = central.memberUpdate(
-    o,
     '6b3e0de52313eae8',
     '1122334455'
   )
@@ -111,14 +114,13 @@ test('member - update', t => {
     'https://my.zerotier.com/api/network/6b3e0de52313eae8/member/1122334455',
     url
   )
-  t.equal('post', opts.method)
+  t.equal(POST, opts.method)
 
   t.end()
 })
 
 test('member - delete', t => {
   const { url, ...opts } = central.memberDelete(
-    o,
     '6b3e0de52313eae8',
     '1122334455'
   )
@@ -127,83 +129,7 @@ test('member - delete', t => {
     'https://my.zerotier.com/api/network/6b3e0de52313eae8/member/1122334455',
     url
   )
-  t.equal('delete', opts.method)
-
-  t.end()
-})
-
-const uuid = 'c42645f3-85e0-4774-bf39-bc34f8365764'
-test('network user - list', t => {
-  const { url, ...opts } = central.networkUserList(o, '6b3e0de52313eae8')
-
-  t.equal('https://my.zerotier.com/api/network/6b3e0de52313eae8/users', url)
-  t.equal('get', opts.method)
-
-  t.end()
-})
-
-test('network user - post', t => {
-  const { url, ...opts } = central.networkUserCreate(
-    o,
-    '6b3e0de52313eae8',
-    uuid
-  )
-
-  t.equal(
-    'https://my.zerotier.com/api/network/6b3e0de52313eae8/users/' + uuid,
-    url
-  )
-  t.equal('post', opts.method)
-
-  t.end()
-})
-
-test('network user - update', t => {
-  const { url, ...opts } = central.networkUserUpdate(
-    o,
-    '6b3e0de52313eae8',
-    uuid
-  )
-
-  t.equal(
-    'https://my.zerotier.com/api/network/6b3e0de52313eae8/users/' + uuid,
-    url
-  )
-  t.equal('post', opts.method)
-
-  t.end()
-})
-
-test('network user - delete', t => {
-  const { url, ...opts } = central.networkUserDelete(
-    o,
-    '6b3e0de52313eae8',
-    uuid
-  )
-
-  t.equal(
-    'https://my.zerotier.com/api/network/6b3e0de52313eae8/users/c42645f3-85e0-4774-bf39-bc34f8365764',
-    url
-  )
-  t.equal('delete', opts.method)
-
-  t.end()
-})
-
-test('with defaults', t => {
-  const opts = {
-    base: '/api',
-    token: 'hello'
-  }
-  const networkId = '1122334455112233'
-  const api = require('../index.js').withDefaults(opts)
-
-  t.deepEqual(central.networkGet(opts, networkId), api.networkGet(networkId))
-  t.deepEqual(central.statusGet(opts), api.statusGet())
-  t.deepEqual(
-    central.memberUpdate(opts, networkId, '1122334455'),
-    api.memberUpdate(networkId, '1122334455')
-  )
+  t.equal(DELETE, opts.method)
 
   t.end()
 })
