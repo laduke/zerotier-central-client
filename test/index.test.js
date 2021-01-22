@@ -10,18 +10,18 @@ const POST = 'POST'
 const DELETE = 'DELETE'
 
 test('token is in header', t => {
-  const res = central.networkList()
+  const req = central.networkList()
 
-  t.equal('bearer 1234', res.headers.Authorization)
+  t.equal('bearer 1234', req.headers.Authorization)
 
   t.end()
 })
 
 test('no token is in header', t => {
   const central = Central()
-  const res = central.networkList()
+  const req = central.networkList()
 
-  t.notOk(res.headers.Authorization)
+  t.notOk(req.headers.Authorization)
 
   t.end()
 })
