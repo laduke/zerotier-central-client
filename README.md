@@ -15,43 +15,105 @@ This doesn't depend on any of the [many fetch/request modules](https://github.co
 
 
 ```javascript
-  const optz = { token: process.env.API_TOKEN }
-
-  const axios = require('axios').default
-  const result = await axios(central.statusGet(optz))
-  console.log(result)
-
-  const fetch = require('node-fetch')
-  const { url, ...opts } = central.statusGet(optz)
-  const result2 = await fetch(url, opts).then(res => res.json())
-  console.log(result2)
-
-```
-
-There is a wrapper so you don't have to pass the options every time:
-
-```javascript
 const axios = require("axios").default;
-
-const { withDefaults } = require("zerotier-central-client");
+const { Central } = require("@laduke/zerotier-central-client");
 
 run();
-
 async function run() {
-  const opts = { token: "your-api-token" };
+    const opts = { token: "the-api-token" };
 
-  central = withDefaults(opts);
+    central = Central(opts);
 
-  const networkId = "1122334455112233";
-
-  const status = await axios(central.statusGet());
-  console.log(status.data);
-
-  const members = await axios(central.memberList(networkId));
-  console.log(members.data);
+    const networks = await axios(central.networkList());
+    console.log(networks.data);
 }
-
 ```
+# API 
+
+## Objects
+
+<dl>
+<dt><a href="#Central">Central</a> : <code>object</code></dt>
+<dd></dd>
+</dl>
+
+## Typedefs
+
+<dl>
+<dt><a href="#Options">Options</a> : <code>Object</code></dt>
+<dd></dd>
+<dt><a href="#NetworkId">NetworkId</a> : <code>String</code></dt>
+<dd><p>16 digit ZeroTier Network ID</p>
+</dd>
+<dt><a href="#NodeId">NodeId</a> : <code>String</code></dt>
+<dd><p>10 digit ZeroTier Node ID</p>
+</dd>
+<dt><a href="#UserId">UserId</a> : <code>String</code></dt>
+<dd><p>Central User ID (uuid)</p>
+</dd>
+</dl>
+
+<a name="Central"></a>
+
+## Central : <code>object</code>
+**Kind**: global namespace  
+
+* [Central](#Central) : <code>object</code>
+    * [.networkDelete(networkId)](#Central+networkDelete)
+    * [.memberDelete(networkId, id)](#Central+memberDelete)
+
+<a name="Central+networkDelete"></a>
+
+### central.networkDelete(networkId)
+Delete a Network by ID
+
+**Kind**: instance method of [<code>Central</code>](#Central)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| networkId | [<code>NetworkId</code>](#NetworkId) | 16 digit network ID |
+
+<a name="Central+memberDelete"></a>
+
+### central.memberDelete(networkId, id)
+Delete a Member from a Network by Network and Node ID
+
+**Kind**: instance method of [<code>Central</code>](#Central)  
+
+| Param | Type |
+| --- | --- |
+| networkId | [<code>NetworkId</code>](#NetworkId) | 
+| id | [<code>NodeId</code>](#NodeId) | 
+
+<a name="Options"></a>
+
+## Options : <code>Object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| token | <code>string</code> | ZeroTier Central API Token |
+| base | <code>string</code> | Default is https://my.zerotier.com/api |
+
+<a name="NetworkId"></a>
+
+## NetworkId : <code>String</code>
+16 digit ZeroTier Network ID
+
+**Kind**: global typedef  
+<a name="NodeId"></a>
+
+## NodeId : <code>String</code>
+10 digit ZeroTier Node ID
+
+**Kind**: global typedef  
+<a name="UserId"></a>
+
+## UserId : <code>String</code>
+Central User ID (uuid)
+
+**Kind**: global typedef  
 
 ## TODO
 - [ ] jsdoc
