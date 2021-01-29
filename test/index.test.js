@@ -2,8 +2,7 @@ const test = require('tape')
 
 const { Central } = require('../index.js')
 
-
-const central = Central({ token: "1234" })
+const central = Central({ token: '1234' })
 
 const GET = 'GET'
 const POST = 'POST'
