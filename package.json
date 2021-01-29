@@ -16,7 +16,6 @@
   "dependencies": {},
   "devDependencies": {
     "axios": "^0.21.1",
-    "eslint-config-standard": "^16.0.2",
     "node-fetch": "^2.6.1",
     "nyc": "^15.1.0",
     "standard": "^16.0.3",
