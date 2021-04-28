@@ -224,6 +224,6 @@ function make ({ base, path, method, token }) {
 function headers (token) {
   return {
     'content-type': 'application/json',
-    ...(token ? { authorization: `bearer ${token}` } : null)
+    ...(token ? { authorization: `Bearer ${token}` } : null)
   }
 }
